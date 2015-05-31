@@ -1,0 +1,11 @@
+<div class="cover-container">
+    <div class="inner cover">
+        <div class="container-error">
+            {{#compare error "database-connection"}}
+                There was an error while accessing the database - please try again later
+            {{/compare}}
+            <br/><br/>
+            <a href="javascript:history.back()">Go Back</a>
+        </div>
+    </div>
+</div>

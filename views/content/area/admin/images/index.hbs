@@ -1,0 +1,128 @@
+<script type="text/javascript" src="/bootstrap/slider/bootstrap-slider.min.js"></script>
+<link type="text/css" rel="stylesheet" property="stylesheet" href="/bootstrap/slider/bootstrap-slider.css" />
+
+<script type="text/javascript" src="/color-thief/quantize.js"></script>
+<script type="text/javascript" src="/color-thief/color-thief.js"></script>
+<script type="text/javascript" src="/spectrum/spectrum.js"></script>
+<link type="text/css" rel="stylesheet" property="stylesheet" href="/spectrum/spectrum.css" />
+
+<a href="/admin/images/import/" class="btn btn-default" style="float:right; margin-right: 10px">Import</a>
+
+<div class="container-actions">
+    <div class="container-filters">
+        <span class="label-main">Filter by:</span><br/><br/>
+        <form method="get">
+            <ul class="container-color-filters">
+                <li><label for="color-r">Red:</label><input class="box-slider js-slider" type="text" id="color-r" name="r" data-slider-min="0" data-slider-max="255" data-slider-value="[{{get.r}}]"/></li>
+                <li><label for="color-g">Green:</label><input class="box-slider js-slider" type="text" id="color-g" name="g" data-slider-min="0" data-slider-max="255" data-slider-value="[{{get.g}}]"/></li>
+                <li><label for="color-b">Blue:</label><input class="box-slider js-slider" type="text" id="color-b" name="b" data-slider-min="0" data-slider-max="255" data-slider-value="[{{get.b}}]"/></li>
+            </ul>
+
+            <label for="approved">Approved only: </label><input style="margin-left: 10px" type="checkbox" id="approved" name="approved" value="1" {{#compare get.approved 1}}checked{{/compare}}>
+
+            <input type="submit" class="btn btn-primary" style="margin-top: -100px; margin-left: 200px"/>
+        </form>
+    </div>
+</div>
+
+<div class="container-image">
+    <ul>
+    {{#each images}}
+        <li class="js-box-image box-image {{#compare this.isApproved 1}}approved{{/compare}}{{#compare this.isApproved 0}}rejected{{/compare}}" data-image='{{this.__string__}}'>
+            <img src="{{this.resource}}"/>
+            <a class="action-reject js-action js-action-reject" href="/admin/images/reject/{{this._id}}/"><span class="glyphicon glyphicon-remove"></span></a>
+            <a class="action-approve js-action js-action-approve" href="/admin/images/accept/{{this._id}}/"><span class="glyphicon glyphicon-ok"></span></a>
+
+            <div class="container-color-actions">
+                <input class="action-color-picker js-color-picker" value="{{this.colourHex}}" data-href="/admin/images/set-colour/{{this._id}}/" type="color" name="color"/>
+                <div class="container-palette js-container-palette">
+
+                    <br style="clear:both"/>
+                </div>
+                <br style="clear:both"/>
+            </div>
+        </li>
+    {{else}}
+        <div>No images found</div>
+    {{/each}}
+    </ul>
+</div>
+
+<script type="text/javascript">
+
+    $(window).load(function()
+    {
+        var update = function(params){
+
+            if (!params)
+                params = {};
+
+            $.ajax({
+                url: $(this).is(":input") ? $(this).attr("data-href") : $(this).attr('href'),
+                method: 'put',
+                dataType: 'json',
+                data: params.data,
+                success: function(response){
+                    if (response.error)
+                        window.alert(response.error)
+
+                    if (response.success)
+                        window.alert(response.success);
+
+                    if (params.callback)
+                        params.callback();
+                }
+            });
+        }
+
+        $(".js-color-picker").spectrum().change(function(ev){
+
+            var value = $(this).spectrum("get").toRgb();
+
+            update.apply(this, [{data: {value: value}}]);
+
+            $(this).parents(".js-box-image").find(".js-box-palette").removeClass('active');
+        });
+
+        $(".js-box-image").each(function(){
+
+            var image = $(this).find("img");
+            var data = $.parseJSON($(this).attr("data-image"));
+            var paletteContainer = $(this).find(".js-container-palette");
+
+            var colorThief = new ColorThief();
+            var palette = colorThief.getPalette(image.get(0), 9);
+            $.each(palette, function(index, value){
+                var dec = {r: value[0], g: value[1], b: value[2]};
+
+                var swatch = $("<a href='/admin/images/set-colour/"+data._id+"/' class='js-box-palette box-palette' style='background-color: rgb("+value.join(",")+")'></span>").prependTo(paletteContainer).click(function(ev){
+                    ev.preventDefault();
+                    $(this).addClass('active').siblings().removeClass('active');
+
+                    update.apply(this, [{data: {value: dec}}]);
+                });
+
+                if (data.colourDec && data.colourDec[0] == value[0] && data.colourDec[1] == value[1] && data.colourDec[2] == value[2])
+                    swatch.addClass("active");
+            });
+
+            $(this).find(".js-action").click(function(ev){
+                ev.preventDefault();
+
+                var self = this;
+                update.apply(this, [{
+                    callback: function()
+                    {
+                        if ($(self).is(".js-action-approve"))
+                            $(self).parents(".js-box-image:first").removeClass('rejected').addClass('approved');
+
+                        if ($(self).is(".js-action-reject"))
+                            $(self).parents(".js-box-image:first").removeClass('approved').addClass('rejected');
+                    }}]
+                );
+            });
+        });
+
+        $(".js-slider").slider()
+    });
+</script>

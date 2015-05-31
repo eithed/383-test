@@ -1,0 +1,28 @@
+<div class="container-error">
+    {{#compare error "empty-file"}}
+    Please upload a JSON file
+    {{/compare}}
+
+    {{#compare error "invalid-mime-type"}}
+    The file you've uploaded is not a JSON file
+    {{/compare}}
+
+    {{#compare error "file-not-exists"}}
+    There was an error while saving your file - please try again later
+    {{/compare}}
+
+    {{#compare error "malformed-json"}}
+    The file you've uploaded is not a proper JSON file
+    {{/compare}}
+
+    {{#compare error "malformed-json-data"}}
+    The file you've uploaded is not in expected JSON format
+    {{/compare}}
+
+    {{#compare error "database-connection"}}
+    There was an error while accessing the database - please try again later
+    {{/compare}}
+
+    <br/><br/>
+    <a href="javascript:history.back()">Go Back</a>
+</div>

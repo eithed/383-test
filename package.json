@@ -1,0 +1,26 @@
+{
+  "name": "383Test",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "async": "^1.0.0",
+    "body-parser": "^1.12.4",
+    "crypto": "0.0.3",
+    "express": "^4.12.4",
+    "express-handlebars": "^2.0.1",
+    "extend": "^2.0.1",
+    "file-type": "^2.6.0",
+    "handlebars": "^3.0.3",
+    "mongodb": "^1.2.x",
+    "multer": "^0.1.8",
+    "mustache": "^2.0.0",
+    "read-chunk": "^1.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Pawel Trauth",
+  "license": "ISC"
+}
